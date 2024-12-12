@@ -1,0 +1,158 @@
+{
+	"info": {
+		"_postman_id": "e9c39fd3-9764-4a2b-b4d8-aaa972e38aff",
+		"name": "transaction",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23111537",
+		"_collection_link": "https://www.postman.com/cloudy-space-392403/ravenpay/collection/a54emyg/transaction?action=share&source=collection_link&creator=23111537"
+	},
+	"item": [
+		{
+			"name": "send (ravenpay api)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{vault:json-web-token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"recipientAccountNumber\": \"6000173791\",\n  \"amount\": 1000.00\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/transactions/send",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"transactions",
+						"send"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "transfer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJjNzVlNzQ4LWI3Y2UtMTFlZi1iOWNhLTU4OTFjZjlhMGYwMSIsImZpcnN0TmFtZSI6IlR1bmppIiwibGFzdE5hbWUiOiJBa2FuZGUiLCJpbWFnZSI6bnVsbCwiZW1haWwiOiJzaG9wbWF0ZTQwMEBnbWFpbC5jb20iLCJpc0FkbWluIjoxLCJpYXQiOjE3MzQwMDIwNDEsImV4cCI6MTczNDA4ODQ0MX0.kbdZmCODzGPMkOKfXh0FS13LfPA3Ox8gOKTNE-iza7U",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"recipientAccountNumber\": \"6000173870\",\n  \"amount\": 500\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/transactions/transfer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"transactions",
+						"transfer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deposit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{vault:json-web-token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"recipientAccountNumber\": \"6000173791\",\n  \"amount\": 1000.00\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/transactions/transfer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"transactions",
+						"transfer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user transactions",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{vault:json-web-token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"recipientAccountNumber\": \"6000173791\",\n  \"amount\": 1000.00\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/transactions/send",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"transactions",
+						"send"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
