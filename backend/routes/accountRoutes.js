@@ -1,5 +1,5 @@
 import express from "express";
-import { isAuth } from "../utils.js";
+import { isAdmin, isAuth } from "../utils.js";
 import BankAccountModel from "../models/accountModel.js";
 import expressAsyncHandler from "express-async-handler";
 import axios from "axios";
@@ -76,6 +76,27 @@ accounterRouter.post(
         "Error:",
         error.response ? error.response.data : error.message
       );
+      res.status(500).json({ message: error.message });
+    }
+  })
+);
+
+//======================================
+// Get all bank accounts with user details
+//======================================
+accounterRouter.get(
+  "/",
+  isAuth,
+  isAdmin,
+  expressAsyncHandler(async (req, res) => {
+    try {
+      const accounts = await BankAccountModel.findAll();
+      if (!accounts || accounts.length === 0) {
+        return res.status(404).json({ message: "No bank accounts found" });
+      }
+
+      res.json(accounts);
+    } catch (error) {
       res.status(500).json({ message: error.message });
     }
   })

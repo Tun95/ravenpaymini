@@ -34,6 +34,22 @@ class BankAccountModel {
     return account;
   }
 
+  // Get all bank accounts with user details
+  static async findAll() {
+    const accounts = await knex("bank_accounts")
+      .join("users", "bank_accounts.user_id", "users.id")
+      .select(
+        "bank_accounts.*",
+        "users.first_name",
+        "users.last_name",
+        "users.email",
+        "users.is_admin",
+        "users.is_blocked"
+      );
+
+    return accounts;
+  }
+
   // Get a bank account by user_id
   static async findByUserId(user_id) {
     const account = await knex("bank_accounts")
@@ -77,14 +93,25 @@ class BankAccountModel {
   }
 
   // Update balance of a bank account
-  static async updateBalance(user_id, newBalance) {
+  static async updateBalance(user_id, amount) {
+    const account = await knex("bank_accounts").where({ user_id }).first();
+
+    if (!account) {
+      throw new Error("Account not found");
+    }
+
+    const newBalance = parseFloat(account.balance) + parseFloat(amount);
+
     await knex("bank_accounts")
       .where({ user_id })
       .update({ balance: newBalance });
 
-    const account = await knex("bank_accounts").where({ user_id }).first();
+    // Retrieve the updated account using user_id
+    const updatedAccount = await knex("bank_accounts")
+      .where({ user_id })
+      .first();
 
-    return account;
+    return updatedAccount;
   }
 
   // Update account type of a bank account

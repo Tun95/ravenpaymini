@@ -58,7 +58,7 @@ transactionRouter.post(
         account_name: recipientAccount.account_name,
         narration: `Transfer to ${recipientAccount.account_name}`,
         reference: reference.toString(),
-        currency: "NGN", 
+        currency: "NGN",
       };
 
       // Configure RavenPay API call
@@ -75,7 +75,7 @@ transactionRouter.post(
       // Call RavenPay API
       const ravenPayResponse = await axios(config);
 
-      // Log the full response from RavenPay
+      // Log the full response from RavenPay (Annoying)
       console.log("RavenPay Response:", ravenPayResponse.data);
       console.log("RavenPay Status:", ravenPayResponse.data.status);
       if (ravenPayResponse.data.status !== "success") {
@@ -117,17 +117,167 @@ transactionRouter.post(
   })
 );
 
-//======================================
+//==========================
+// Local Transfer money route (unchanged as per request)
+//==========================
+transactionRouter.post(
+  "/transfer",
+  isAuth,
+  expressAsyncHandler(async (req, res) => {
+    const { recipientAccountNumber, amount } = req.body;
+    const senderId = req.user.id;
+
+    try {
+      // Check if recipient's bank account exists
+      const recipientAccount = await BankAccountModel.findByAccountNumber(
+        recipientAccountNumber
+      );
+      if (!recipientAccount) {
+        return res
+          .status(404)
+          .json({ message: "Recipient bank account not found" });
+      }
+
+      // Check if the transfer amount exceeds the limit of 1,000,000
+      if (amount > 1000000) {
+        return res
+          .status(400)
+          .json({ message: "Transfer amount cannot exceed 1,000,000" });
+      }
+
+      // Check sender's balance
+      const senderAccount = await BankAccountModel.findByUserId(senderId);
+      if (senderAccount.balance < amount) {
+        return res.status(400).json({ message: "Insufficient funds" });
+      }
+
+      // Generate transaction ID and reference
+      const transactionId = Math.floor(Math.random() * 10000000000);
+      const reference = Math.floor(Math.random() * 1000000000000);
+
+      // Create a transaction
+      const transaction = await TransactionModel.create({
+        sender_id: senderId,
+        recipient_id: recipientAccount.user_id,
+        recipient_account_number: recipientAccountNumber,
+        amount,
+        transaction_id: transactionId,
+        reference,
+        currency: "NGN",
+        transaction_type: "transfer",
+      });
+
+      // Update the transaction status
+      await TransactionModel.updateStatus(transactionId, "successful");
+
+      // Process balances
+      const updatedSenderAccount = await BankAccountModel.updateBalance(
+        senderId,
+        senderAccount.balance - amount
+      );
+      const updatedRecipientAccount = await BankAccountModel.updateBalance(
+        recipientAccount.user_id,
+        recipientAccount.balance + amount
+      );
+
+      res.json({
+        message: "Transaction successful",
+        transaction,
+        updatedSenderAccount,
+        updatedRecipientAccount,
+      });
+    } catch (error) {
+      console.log(
+        "Error:",
+        error.response ? error.response.data : error.message
+      );
+      res.status(500).json({ message: error.message });
+    }
+  })
+);
+
+
+
+//==========================
+// Local money deposit route
+//==========================
+transactionRouter.post(
+  "/deposit",
+  isAuth,
+  expressAsyncHandler(async (req, res) => {
+    const { amount } = req.body;
+    const senderId = req.user.id;
+
+    if (amount <= 100) {
+      return res
+        .status(400)
+        .json({ message: "Deposit amount must be greater than #100" });
+    }
+
+    // Check if the deposit amount exceeds the limit of 1,000,000
+    if (amount > 1000000) {
+      return res
+        .status(400)
+        .json({ message: "Deposit amount cannot exceed 1,000,000" });
+    }
+
+    try {
+      console.log("Sender ID:", senderId);
+
+      // Find the user's account
+      const senderAccount = await BankAccountModel.findByUserId(senderId);
+      console.log("Sender Account:", senderAccount);
+
+      if (!senderAccount) {
+        return res.status(404).json({ message: "Account not found" });
+      }
+
+      // Generate transaction ID and reference
+      const transactionId = Math.floor(Math.random() * 10000000000);
+      const reference = Math.floor(Math.random() * 1000000000000);
+
+      // Create a deposit transaction
+      const transaction = await TransactionModel.create({
+        sender_id: senderId,
+        recipient_id: senderId,
+        recipient_account_number: senderAccount.account_number,
+        amount,
+        transaction_id: transactionId,
+        reference,
+        currency: "NGN",
+        transaction_type: "deposit",
+      });
+
+      // Update the user's account balance
+      const updatedAccount = await BankAccountModel.updateBalance(
+        senderId,
+        amount
+      );
+
+      res.json({ message: "Deposit successful", transaction, updatedAccount });
+    } catch (error) {
+      console.log(
+        "Error:",
+        error.response ? error.response.data : error.message
+      );
+      res.status(500).json({ message: error.message });
+    }
+  })
+);
+
+//==========================
 // Get all transactions for a user
-//======================================
+//==========================
 transactionRouter.get(
-  "/:user_id",
+  "/history/:user_id",
   isAuth,
   expressAsyncHandler(async (req, res) => {
     const userId = req.params.user_id;
+    const { type = "all" } = req.query;
 
     try {
-      const transactions = await TransactionModel.getByUserId(userId);
+      // Get transactions based on the type
+      const transactions = await TransactionModel.getByUserId(userId, type);
       res.json(transactions);
     } catch (error) {
       res.status(500).json({ message: error.message });
