@@ -92,15 +92,20 @@ class BankAccountModel {
     return account;
   }
 
-  // Update balance of a bank account
-  static async updateBalance(user_id, amount) {
+  // Update balance of a bank account with explicit amount adjustment
+  static async updateBalance(user_id, adjustmentAmount) {
     const account = await knex("bank_accounts").where({ user_id }).first();
 
     if (!account) {
       throw new Error("Account not found");
     }
 
-    const newBalance = parseFloat(account.balance) + parseFloat(amount);
+    const newBalance =
+      parseFloat(account.balance) + parseFloat(adjustmentAmount);
+
+    if (newBalance < 0) {
+      throw new Error("Insufficient funds");
+    }
 
     await knex("bank_accounts")
       .where({ user_id })

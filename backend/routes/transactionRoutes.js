@@ -8,7 +8,7 @@ import expressAsyncHandler from "express-async-handler";
 const transactionRouter = express.Router();
 
 //======================================
-// Create a new transaction (send money)
+// Create a new transaction (ravenpay: send money)
 //=====================================
 transactionRouter.post(
   "/send",
@@ -118,7 +118,7 @@ transactionRouter.post(
 );
 
 //==========================
-// Local Transfer money route (unchanged as per request)
+// Local Transfer money route
 //==========================
 transactionRouter.post(
   "/transfer",
@@ -170,14 +170,16 @@ transactionRouter.post(
       // Update the transaction status
       await TransactionModel.updateStatus(transactionId, "successful");
 
-      // Process balances
+      // Deduct from sender
       const updatedSenderAccount = await BankAccountModel.updateBalance(
         senderId,
-        senderAccount.balance - amount
+        -parseFloat(amount) // Subtract amount
       );
+
+      // Credit recipient
       const updatedRecipientAccount = await BankAccountModel.updateBalance(
         recipientAccount.user_id,
-        recipientAccount.balance + amount
+        parseFloat(amount) // Add amount
       );
 
       res.json({
@@ -195,8 +197,6 @@ transactionRouter.post(
     }
   })
 );
-
-
 
 //==========================
 // Local money deposit route
