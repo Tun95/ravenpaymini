@@ -7,7 +7,9 @@ import qs from "qs";
 
 const accounterRouter = express.Router();
 
+//======================================
 // Generate a new bank account
+//======================================
 accounterRouter.post(
   "/generate",
   isAuth,
@@ -79,7 +81,9 @@ accounterRouter.post(
   })
 );
 
+//======================================
 // Get bank account by user ID
+//======================================
 accounterRouter.get(
   "/:user_id",
   isAuth,
@@ -99,7 +103,9 @@ accounterRouter.get(
   })
 );
 
+//======================================
 // Get bank account by account number
+//======================================
 accounterRouter.get(
   "/number/:account_number",
   isAuth,
@@ -119,7 +125,9 @@ accounterRouter.get(
   })
 );
 
+//======================================
 // Delete a bank account by account number
+//======================================
 accounterRouter.delete(
   "/number/:account_number",
   isAuth,

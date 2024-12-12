@@ -20,7 +20,7 @@ class BankAccountModel {
     // Insert the bank account details into the database
     await knex("bank_accounts").insert({
       user_id,
-      account_number, // Ensure we insert the correct account number
+      account_number,
       bank_name,
       account_type,
       balance,

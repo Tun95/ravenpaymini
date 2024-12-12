@@ -8,15 +8,19 @@ class TransactionModel {
     recipient_account_number,
     amount,
     transaction_id,
+    currency = "NGN", //Default
+    reference,
   }) {
     const [transaction] = await knex("transactions")
       .insert({
         sender_id,
-        recipient_id, // Include recipient_id
+        recipient_id,
         recipient_account_number,
         amount,
         transaction_id,
         status: "pending",
+        currency,
+        reference,
       })
       .returning("*");
 
@@ -27,7 +31,7 @@ class TransactionModel {
   static async getByUserId(user_id) {
     const transactions = await knex("transactions")
       .where("sender_id", user_id)
-      .orWhere("recipient_id", user_id) // Include recipient_id filter
+      .orWhere("recipient_id", user_id)
       .orderBy("created_at", "desc");
     return transactions;
   }

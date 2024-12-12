@@ -42,7 +42,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 
-  // Ensure database is connected by testing the connection here
+  // To Ensure database is connected by testing the connection here
   db.raw("SELECT 1")
     .then(() => {
       console.log("connected to db successfully!");
