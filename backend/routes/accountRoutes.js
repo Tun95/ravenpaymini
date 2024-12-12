@@ -11,12 +11,16 @@ accounterRouter.post(
   isAuth,
   expressAsyncHandler(async (req, res) => {
     const userId = req.user.id; // Get user ID from JWT token
-    const accountNumber = Math.floor(Math.random() * 10000000000); // Random 10-digit number for account number
+    const accountNumber =
+      String(Date.now()) + Math.floor(Math.random() * 10000);
+    const { bank_name, account_type } = req.body; // Include bank_name
 
     try {
       const newAccount = await BankAccountModel.create({
         user_id: userId,
         account_number: accountNumber,
+        bank_name, // Pass bank_name
+        account_type,
       });
 
       res.status(201).json({
