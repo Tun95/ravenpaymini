@@ -3,9 +3,9 @@ import db from "../db/knex.js";
 const UserModel = {
   async create(userData) {
     // Insert user data and retrieve the inserted user's ID
-    await db("users").insert(userData); // Perform the insert operation
+    await db("users").insert(userData);
 
-    // Retrieve the inserted user by unique email to ensure we get the right user
+    // To retrieve the inserted user by unique email to ensure we get the right user
     const user = await db("users").where({ email: userData.email }).first();
     return user;
   },

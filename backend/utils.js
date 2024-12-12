@@ -11,7 +11,7 @@ export const generateToken = (user) => {
       lastName: user.last_name,
       image: user.image,
       email: user.email,
-      isAdmin: user.is_admin, // Ensure this is included
+      isAdmin: user.is_admin,
     },
     process.env.JWT_SECRET || "somethingsecret",
     { expiresIn }
@@ -22,7 +22,7 @@ export const generateToken = (user) => {
 export const isAuth = (req, res, next) => {
   const authorization = req.headers.authorization;
   if (authorization) {
-    const token = authorization.slice(7); // Remove "Bearer " prefix
+    const token = authorization.slice(7);
     jwt.verify(
       token,
       process.env.JWT_SECRET || "somethingsecret",
@@ -32,7 +32,7 @@ export const isAuth = (req, res, next) => {
             .status(401)
             .send({ message: "Unauthorized: Invalid or expired token" });
         }
-        req.user = decode; // Attach decoded user to request
+        req.user = decode; 
         next();
       }
     );

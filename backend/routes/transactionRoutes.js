@@ -173,13 +173,13 @@ transactionRouter.post(
       // Deduct from sender
       const updatedSenderAccount = await BankAccountModel.updateBalance(
         senderId,
-        -parseFloat(amount) // Subtract amount
+        -parseFloat(amount) 
       );
 
       // Credit recipient
       const updatedRecipientAccount = await BankAccountModel.updateBalance(
         recipientAccount.user_id,
-        parseFloat(amount) // Add amount
+        parseFloat(amount)
       );
 
       res.json({

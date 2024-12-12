@@ -8,7 +8,7 @@ const config = knexConfig[environment];
 // Initialize Knex instance
 const db = knex(config);
 
-// Test the database connection
+// To Test the database connection
 // db.raw("SELECT 1")
 //   .then(() => {
 //     console.log("Database connection successful!");

@@ -6,7 +6,9 @@ import UserModel from "../models/userModel.js";
 
 const userRouter = express.Router();
 
+//=================
 // Signup route
+//=================
 userRouter.post(
   "/signup",
   expressAsyncHandler(async (req, res) => {
@@ -24,7 +26,7 @@ userRouter.post(
 
       // Check if this is the first user signing up
       const users = await UserModel.findAll();
-      const isAdmin = users.length === 0; // The first user is admin
+      const isAdmin = users.length === 0;
 
       // Create a new user
       const user = await UserModel.create({
@@ -32,14 +34,14 @@ userRouter.post(
         last_name: lastName,
         email,
         password: hashedPassword,
-        is_admin: isAdmin, // This will be true or false
+        is_admin: isAdmin,
       });
 
       // Generate a token and return user data
       res.status(201).json({
         message: "User created successfully",
         user: {
-          id: user.id, // Consistent with your database field name
+          id: user.id,
           firstName: user.first_name,
           lastName: user.last_name,
           email: user.email,
@@ -53,7 +55,9 @@ userRouter.post(
   })
 );
 
+//=================
 // Login route
+//=================
 userRouter.post(
   "/login",
   expressAsyncHandler(async (req, res) => {
@@ -80,7 +84,7 @@ userRouter.post(
       res.json({
         message: "Login successful",
         user: {
-          id: user.id, // Consistent with your database field name
+          id: user.id,
           firstName: user.first_name,
           lastName: user.last_name,
           email: user.email,
@@ -94,7 +98,9 @@ userRouter.post(
   })
 );
 
+//=================
 // Fetch all users
+//=================
 userRouter.get(
   "/",
   expressAsyncHandler(async (req, res) => {
@@ -107,13 +113,15 @@ userRouter.get(
   })
 );
 
+//=================
 // Get user profile details
+//=================
 userRouter.get(
   "/profile",
   isAuth,
   expressAsyncHandler(async (req, res) => {
     try {
-      const user = await UserModel.findById(req.user.id); // Use `req.user.id` instead of `req.user._id`
+      const user = await UserModel.findById(req.user.id);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -124,7 +132,9 @@ userRouter.get(
   })
 );
 
-// Admin-only route: Get all users
+//=================
+// Admin: Get all users
+//=================
 userRouter.get(
   "/users",
   isAuth,
@@ -139,7 +149,9 @@ userRouter.get(
   })
 );
 
-// Admin-only route: Delete user by ID
+//=================
+// Admin: Delete user by ID
+//=================
 userRouter.delete(
   "/:id",
   isAuth,
@@ -148,13 +160,11 @@ userRouter.delete(
     const { id } = req.params;
 
     try {
-      // Check if the user exists
       const user = await UserModel.findById(id);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Delete the user
       await UserModel.deleteUser(id);
 
       res.status(200).json({ message: "User deleted successfully" });
