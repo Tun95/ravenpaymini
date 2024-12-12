@@ -1,0 +1,2 @@
+POSTMAN COLLECTION LINK INVITE:
+https://app.getpostman.com/join-team?invite_code=aa2859f212d2ecc0e068d2e70b9217e3b90b6039b3f89cceb59ccc4289d0971b&target_code=d15f83e79d0352ef739ce3c436b96f32
