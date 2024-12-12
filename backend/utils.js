@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 // Generate JWT token
 export const generateToken = (user) => {
-  const expiresIn = user.is_admin ? "2h" : "24h";
+  const expiresIn = user.is_admin ? "24h" : "24h";
 
   return jwt.sign(
     {

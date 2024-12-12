@@ -5,18 +5,23 @@ class BankAccountModel {
   static async create({
     user_id,
     account_number,
-    bank_name, // Add bank_name to the parameters
+    bank_name,
     account_type = "savings",
     balance = 0,
   }) {
+    if (!account_number) {
+      throw new Error("Account number is required");
+    }
+
     if (!bank_name) {
       throw new Error("Bank name is required");
     }
 
+    // Insert the bank account details into the database
     await knex("bank_accounts").insert({
       user_id,
-      account_number,
-      bank_name, // Include bank_name in the insert query
+      account_number, // Ensure we insert the correct account number
+      bank_name,
       account_type,
       balance,
     });
@@ -35,12 +40,12 @@ class BankAccountModel {
       .join("users", "bank_accounts.user_id", "users.id")
       .where("bank_accounts.user_id", user_id)
       .select(
-        "bank_accounts.*", 
-        "users.first_name", 
-        "users.last_name", 
-        "users.email", 
-        "users.is_admin", 
-        "users.is_blocked" 
+        "bank_accounts.*",
+        "users.first_name",
+        "users.last_name",
+        "users.email",
+        "users.is_admin",
+        "users.is_blocked"
       )
       .first();
     return account;
@@ -49,7 +54,7 @@ class BankAccountModel {
   // Get a bank account by account_number along with user details
   static async findByAccountNumber(account_number) {
     const account = await knex("bank_accounts")
-      .join("users", "bank_accounts.user_id", "users.id") // Join bank_accounts with users
+      .join("users", "bank_accounts.user_id", "users.id")
       .where({ "bank_accounts.account_number": account_number })
       .select(
         "bank_accounts.id",
@@ -66,7 +71,7 @@ class BankAccountModel {
         "users.is_admin",
         "users.is_blocked"
       )
-      .first(); // Ensure we only get one record (if account_number is unique)
+      .first();
 
     return account;
   }
@@ -87,6 +92,21 @@ class BankAccountModel {
     await knex("bank_accounts").where({ user_id }).update({ account_type }); // Update account_type
 
     const account = await knex("bank_accounts").where({ user_id }).first();
+
+    return account;
+  }
+
+  // Delete a bank account by account_number
+  static async deleteByAccountNumber(account_number) {
+    const account = await knex("bank_accounts")
+      .where({ account_number })
+      .first();
+
+    if (!account) {
+      throw new Error("Bank account not found");
+    }
+
+    await knex("bank_accounts").where({ account_number }).del();
 
     return account;
   }
