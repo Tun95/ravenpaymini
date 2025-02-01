@@ -132,6 +132,7 @@ transactionRouter.post(
       const recipientAccount = await BankAccountModel.findByAccountNumber(
         recipientAccountNumber
       );
+
       if (!recipientAccount) {
         return res
           .status(404)
@@ -173,13 +174,27 @@ transactionRouter.post(
       // Deduct from sender
       const updatedSenderAccount = await BankAccountModel.updateBalance(
         senderId,
-        -parseFloat(amount) 
+        -parseFloat(amount)
       );
 
       // Credit recipient
       const updatedRecipientAccount = await BankAccountModel.updateBalance(
         recipientAccount.user_id,
         parseFloat(amount)
+      );
+
+      // Simulate a webhook notification
+      const webhookPayload = {
+        transaction_id: transactionId,
+        status: "successful",
+        amount,
+        recipient_account_number: recipientAccountNumber,
+      };
+
+      // Call the webhook endpoint internally
+      await axios.post(
+        "http://localhost:5000/api/transactions/webhook",
+        webhookPayload
       );
 
       res.json({
@@ -248,19 +263,63 @@ transactionRouter.post(
         transaction_type: "deposit",
       });
 
-      // Update the user's account balance
-      const updatedAccount = await BankAccountModel.updateBalance(
-        senderId,
-        amount
+      // Simulate a webhook notification
+      const webhookPayload = {
+        transaction_id: transactionId,
+        status: "successful",
+        amount,
+        recipient_account_number: senderAccount.account_number,
+      };
+
+      // Call the webhook endpoint internally
+      await axios.post(
+        "http://localhost:5000/api/transactions/webhook",
+        webhookPayload
       );
 
-      res.json({ message: "Deposit successful", transaction, updatedAccount });
+      res.json({ message: "Deposit successful", transaction });
     } catch (error) {
       console.log(
         "Error:",
         error.response ? error.response.data : error.message
       );
       res.status(500).json({ message: error.message });
+    }
+  })
+);
+
+//==========================
+// Webhook Notification
+//==========================
+transactionRouter.post(
+  "/webhook",
+  expressAsyncHandler(async (req, res) => {
+    const payload = req.body;
+
+    console.log("Webhook Payload:", payload);
+
+    const { transaction_id, status, amount, recipient_account_number } =
+      payload;
+
+    try {
+      await TransactionModel.updateStatus(transaction_id, status);
+
+      if (status === "successful") {
+        const recipientAccount = await BankAccountModel.findByAccountNumber(
+          recipient_account_number
+        );
+        if (recipientAccount) {
+          await BankAccountModel.updateBalance(
+            recipientAccount.user_id,
+            parseFloat(amount) // Ensure amount is a number
+          );
+        }
+      }
+
+      res.status(200).json({ message: "Webhook received successfully" });
+    } catch (error) {
+      console.error("Webhook Error:", error);
+      res.status(500).json({ message: "Failed to process webhook" });
     }
   })
 );

@@ -60,16 +60,19 @@ accounterRouter.post(
 
       console.log("Generated Account Number:", account_number);
 
+      // Save the amount as balance in the database
       const newAccount = await BankAccountModel.create({
         user_id: userId,
         account_number: account_number,
         bank_name: bank || bank_name,
         account_type,
+        balance: parseFloat(amount), // Convert amount to a number and save as balance
       });
 
       res.status(201).json({
         message: "Bank account created successfully",
         accountNumber: newAccount.account_number,
+        balance: newAccount.balance, // Include balance in the response
       });
     } catch (error) {
       console.log(
@@ -80,6 +83,64 @@ accounterRouter.post(
     }
   })
 );
+
+// accounterRouter.post(
+//   "/generate",
+//   isAuth,
+//   expressAsyncHandler(async (req, res) => {
+//     const userId = req.user.id;
+//     const { customer_email, bvn, nin, fname, lname, phone } = req.body;
+
+//     // Validate required fields
+//     if (!customer_email || !bvn || !nin || !fname || !lname || !phone) {
+//       return res.status(400).json({ message: "All fields are required" });
+//     }
+
+//     try {
+//       // Call RavenPay API to create wallet
+//       const response = await axios.post(
+//         "https://integrations.getravenbank.com/v1/wallet/create_merchant",
+//         { customer_email, bvn, nin, fname, lname, phone },
+//         {
+//           headers: {
+//             Authorization: `Bearer ${process.env.RAVENPAY_API_TOKEN}`,
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       );
+
+//       console.log("RavenPay Response:", response.data);
+
+//       const walletData = response.data.data;
+//       if (!walletData.account_number) {
+//         return res
+//           .status(400)
+//           .json({ message: "Failed to generate wallet account" });
+//       }
+
+//       // Save wallet details in the database
+//       const newWallet = await BankAccountModel.create({
+//         user_id: userId,
+//         customer_email,
+//         account_number: walletData.account_number,
+//         bank_name: walletData.bank_name,
+//         account_name: walletData.account_name,
+//         reference: walletData.reference,
+//       });
+
+//       res.status(201).json({
+//         message: "Wallet created successfully",
+//         accountNumber: newWallet.account_number,
+//       });
+//     } catch (error) {
+//       console.error(
+//         "Error creating wallet:",
+//         error.response ? error.response.data : error.message
+//       );
+//       res.status(500).json({ message: "Wallet creation failed" });
+//     }
+//   })
+// );
 
 //======================================
 // Get all bank accounts with user details
